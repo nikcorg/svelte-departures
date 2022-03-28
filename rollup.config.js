@@ -6,6 +6,7 @@ import { terser } from "rollup-plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
+import replace from "@rollup/plugin-replace";
 
 const production = !process.env.ROLLUP_WATCH;
 const tsConfig = require("./tsconfig.json");
@@ -66,6 +67,16 @@ export default {
       dedupe: ["svelte"],
     }),
     commonjs(),
+
+    replace({
+      preventAssignment: true,
+      values: {
+        __UPDATE_URL__: process.env.UPDATE_URL,
+        __BUILD_HASH__: process.env.BUILD_HASH ?? "<unset>",
+        __BUILD_DATE__: new Date().toUTCString(),
+      },
+    }),
+
     typescript(
       Object.assign({}, tsConfig.compilerOptions, {
         sourceMap: sourceMap,

@@ -1,5 +1,6 @@
 import type { Update } from "./types";
 import { readable, derived } from "svelte/store";
+import { updateURL } from "./config";
 
 interface Updater {
   didUpdate: boolean;
@@ -16,9 +17,8 @@ const update = readable<Updater>(
   { updating: false, didUpdate: false } as Updater,
   (set) => {
     const updateIntervalMs = 30e3;
-    const sourceURL = "https://nikc.kapsi.fi/departures/update.json";
     const load = (): Promise<Update> =>
-      fetch(sourceURL).then((r) => r.json() as unknown as Update);
+      fetch(updateURL).then((r) => r.json() as unknown as Update);
 
     let state: Updater = {} as Updater;
 
