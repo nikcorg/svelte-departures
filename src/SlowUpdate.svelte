@@ -35,7 +35,7 @@
       tickTimer.abort();
     }
     tickTimer = new AbortController();
-    animationInterval(250, tickTimer.signal, tick);
+    animationInterval(200, tickTimer.signal, tick);
   } else {
     tickTimer.abort();
   }

@@ -17,8 +17,6 @@
   const load = (): Promise<Update> =>
     fetch(sourceURL).then((r) => r.json() as unknown as Update);
 
-  // const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
   let updateTimer: ReturnType<typeof setTimeout> | null = null;
 
   const updater = () => {
@@ -63,38 +61,34 @@
     .slice(0, 10);
 </script>
 
-<main>
-  <div class="controls">
-    <div class="filters">
-      {#each [...$display.entries()].sort( ([sa], [sb]) => (sa > sb ? 1 : 0) ) as [station, include]}
-        <ToggleButton click={() => toggle(station)} active={include}
-          >{station} ({arrivals.get(station) ?? 0})</ToggleButton
-        >
-      {/each}
-    </div>
-    <div class="preferences">
-      <SlowUpdate after={500} active={updating} />
-      <span class="offset"
-        >{#if offset > 0}(+{offset} min){:else}realtime{/if}</span
+<div class="container">
+  <div class="toolkit">
+    {#each [...$display.entries()].sort( ([sa], [sb]) => (sa > sb ? 1 : 0) ) as [station, include]}
+      <ToggleButton click={() => toggle(station)} active={include}
+        >{station} ({arrivals.get(station) ?? 0})</ToggleButton
       >
-      <button on:click={() => updater()}>&#9842;</button>
-    </div>
+    {/each}
   </div>
-
+  <div class="settings">
+    <span class="offset"
+      >{#if offset > 0}(+{offset} min){:else}realtime{/if}</span
+    >
+    <button on:click={() => updater()}>&#9842;</button>
+  </div>
   <div class="state">
-    {#if updatedAt != null}
-      <TimeSince tick={true} when={updatedAt}>updated</TimeSince>
-    {/if}
+    <TimeSince tick={true} when={updatedAt}>updated</TimeSince>
   </div>
-
-  <div class="departures">
+  <div class="display">
     {#if filteredDepartures.length == 0}
       <p>No departures</p>
     {:else}
       <Departures departures={filteredDepartures} />
     {/if}
   </div>
-</main>
+  <div class="indicators">
+    <SlowUpdate after={500} active={updating} />
+  </div>
+</div>
 
 <style>
   @font-face {
@@ -122,6 +116,10 @@
     --font-bold: "dot_matrixbold";
   }
 
+  :global(*) {
+    box-sizing: border-box;
+  }
+
   :global(body) {
     background-color: var(--bg);
     color: var(--fg);
@@ -131,9 +129,39 @@
     padding: 0;
   }
 
-  main {
-    position: relative;
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 0.2fr 2.6fr 0.2fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
     height: 100%;
+  }
+
+  .state {
+    align-self: center;
+    grid-area: 3 / 1 / 4 / 4;
+  }
+
+  .display {
+    grid-area: 2 / 1 / 3 / 4;
+  }
+
+  .indicators {
+    justify-self: end;
+    align-self: center;
+    grid-area: 3 / 3 / 4 / 4;
+  }
+
+  .toolkit {
+    align-self: center;
+    grid-area: 1 / 1 / 2 / 4;
+  }
+
+  .settings {
+    justify-self: end;
+    align-self: center;
+    grid-area: 1 / 3 / 2 / 4;
   }
 
   button {
@@ -146,38 +174,5 @@
     padding: 8px 10px 5px 10px;
     min-width: 30px;
     line-height: 1;
-  }
-
-  .state {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-  }
-
-  .departures {
-    margin-top: 10px;
-  }
-
-  .controls {
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    justify-content: space-between;
-    min-height: 35px;
-  }
-
-  .preferences {
-    justify-self: right;
-    align-items: center;
-    display: flex;
-  }
-
-  .offset {
-    margin-left: 15px;
-    margin-right: 15px;
   }
 </style>
