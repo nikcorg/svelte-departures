@@ -4,4 +4,5 @@ build:
 
 .PHONY: deploy
 deploy: build
-	rsync -r public/* zero:/var/www/html/
+	rsync -r public/* zero:/var/www/html/ && \
+	ssh zero scripts/refresh
