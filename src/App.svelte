@@ -120,6 +120,8 @@
 
   .display {
     grid-area: 2 / 1 / 3 / 4;
+    align-self: start;
+    padding-top: 15px;
   }
 
   .indicators {
