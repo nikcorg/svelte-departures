@@ -1,5 +1,4 @@
 import type { Update } from "./types";
-import { onDestroy } from "svelte";
 import { readable, derived } from "svelte/store";
 
 interface Updater {
@@ -8,7 +7,10 @@ interface Updater {
   lastUpdate: Update;
 }
 
+let updateTicker: ReturnType<typeof setTimeout>;
 let updater: () => void;
+
+const stop = () => clearTimeout(updateTicker);
 
 const update = readable<Updater>(
   { updating: false, didUpdate: false } as Updater,
@@ -18,10 +20,7 @@ const update = readable<Updater>(
     const load = (): Promise<Update> =>
       fetch(sourceURL).then((r) => r.json() as unknown as Update);
 
-    let updateTicker: ReturnType<typeof setTimeout>;
     let state: Updater = {} as Updater;
-
-    onDestroy(() => clearTimeout(updateTicker));
 
     updater = () => {
       if (state.updating) {
@@ -44,12 +43,10 @@ const update = readable<Updater>(
           updateTicker = setTimeout(updater, updateIntervalMs);
         });
     };
-
-    updater();
   }
 );
 
-const maybe =
+const withDefault =
   <T>(zero: T, f: (_: Update) => T) =>
   (u: Updater) => {
     if (!u.didUpdate) {
@@ -61,12 +58,12 @@ const maybe =
 
 const offset = derived(
   update,
-  maybe(0, (u) => u.offset)
+  withDefault(0, (u) => u.offset)
 );
 
 const stations = derived(
   update,
-  maybe(
+  withDefault(
     new Map<string, number>(),
     ({ stations }) => new Map<string, number>(Object.entries(stations))
   )
@@ -74,12 +71,12 @@ const stations = derived(
 
 const departures = derived(
   update,
-  maybe([], ({ departures }) => departures)
+  withDefault([], ({ departures }) => departures)
 );
 
 const updatedAt = derived(
   update,
-  maybe(new Date(0), ({ updatedAt }) => new Date(updatedAt))
+  withDefault(new Date(0), ({ updatedAt }) => new Date(updatedAt))
 );
 
 const didUpdate = derived(update, ({ didUpdate }) => didUpdate);
@@ -93,4 +90,5 @@ export {
   updatedAt,
   updating,
   updater,
+  stop,
 };
