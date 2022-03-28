@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { display, toggle, setnx, reset } from "./settings";
   import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
   import SlowUpdate from "./SlowUpdate.svelte";
   import TimeSince from "./TimeSince.svelte";
 
+  import { display, toggle, setnx, reset } from "./settings";
   import {
     stations,
     departures,
@@ -15,20 +15,23 @@
     updater,
   } from "./updater";
 
+  // all stations enabled by default
   $: for (let [s] of $stations) {
     setnx(s, true);
   }
 
-  $: filteredDepartures = $departures
-    .filter((d) => $display.get(d.sta) ?? true)
-    .slice(0, 10);
+  // derive filtered departures
+  $: ds = $departures.filter((d) => $display.get(d.sta) ?? true).slice(0, 10);
+
+  // derive filters
+  $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));
 
   reset();
 </script>
 
 <div class="container">
   <div class="toolkit">
-    {#each [...$display.entries()].sort( ([sa], [sb]) => (sa > sb ? 1 : 0) ) as [station, include]}
+    {#each fs as [station, include]}
       <ToggleButton click={() => toggle(station)} active={include}
         >{station} ({$stations.get(station) ?? 0})</ToggleButton
       >
@@ -41,13 +44,15 @@
     <button disabled={$updating} on:click={() => updater()}>&#9842;</button>
   </div>
   <div class="state">
-    <TimeSince tick={true} when={$updatedAt}>updated</TimeSince>
+    {#if $didUpdate}
+      <TimeSince tick={true} when={$updatedAt}>updated</TimeSince>
+    {/if}
   </div>
   <div class="display">
-    {#if !$didUpdate || filteredDepartures.length == 0}
+    {#if !$didUpdate || ds.length == 0}
       <p class="larger">No departures</p>
     {:else}
-      <Departures departures={filteredDepartures} />
+      <Departures departures={ds} />
     {/if}
   </div>
   <div class="indicators">
