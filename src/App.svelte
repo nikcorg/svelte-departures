@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount, onDestroy } from "svelte";
+
   import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
   import SlowUpdate from "./SlowUpdate.svelte";
@@ -13,7 +15,12 @@
     updating,
     didUpdate,
     updater,
+    stop,
   } from "./updater";
+
+  onMount(reset);
+  onMount(updater);
+  onDestroy(stop);
 
   // all stations enabled by default
   $: for (let [s] of $stations) {
@@ -25,8 +32,6 @@
 
   // derive filters
   $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));
-
-  reset();
 </script>
 
 <div class="container">
