@@ -50,7 +50,7 @@
   </div>
   <div class="state">
     {#if $didUpdate}
-      <TimeSince tick={true} when={$updatedAt}>updated</TimeSince>
+      <TimeSince live={true} when={$updatedAt}>updated</TimeSince>
     {/if}
   </div>
   <div class="display">

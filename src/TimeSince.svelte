@@ -3,7 +3,7 @@
   import { onDestroy } from "svelte";
 
   export let when: Date | null;
-  export let tick: boolean;
+  export let live: boolean;
 
   const rtf = new Intl.RelativeTimeFormat("en", { style: "narrow" });
 
@@ -31,7 +31,7 @@
 
   let ab: AbortController;
 
-  $: if (tick && when != null) {
+  $: if (live && when != null) {
     if (ab != null) {
       ab.abort;
     }
