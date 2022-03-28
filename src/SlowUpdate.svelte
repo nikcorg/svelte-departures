@@ -12,9 +12,12 @@
 
   let slowTimer: ReturnType<typeof setTimeout>;
   let tickTimer: AbortController;
+
   const cleanup = () => {
     clearTimeout(slowTimer);
-    tickTimer.abort();
+    if (tickTimer) {
+      tickTimer.abort();
+    }
   };
 
   onDestroy(cleanup);
@@ -37,7 +40,7 @@
     tickTimer = new AbortController();
     animationInterval(200, tickTimer.signal, tick);
   } else {
-    tickTimer.abort();
+    cleanup();
   }
 </script>
 
