@@ -1,92 +1,57 @@
 <script lang="ts">
-  import type { Departure, Update } from "./types";
   import { display, toggle, setnx, reset } from "./settings";
   import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
   import SlowUpdate from "./SlowUpdate.svelte";
   import TimeSince from "./TimeSince.svelte";
 
-  let updating: boolean = false;
-  let departures: Departure[] = [];
-  let arrivals = new Map<string, number>();
-  let offset: number = 0;
-  let updatedAt: Date | null = null;
+  import {
+    stations,
+    departures,
+    offset,
+    updatedAt,
+    updating,
+    didUpdate,
+    updater,
+  } from "./updater";
 
-  const updateIntervalMs = 30e3;
-  const sourceURL = "https://nikc.kapsi.fi/departures/update.json";
-  const load = (): Promise<Update> =>
-    fetch(sourceURL).then((r) => r.json() as unknown as Update);
+  $: for (let [s] of $stations) {
+    setnx(s, true);
+  }
 
-  let updateTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const updater = () => {
-    if (updating) {
-      return;
-    }
-
-    updating = true;
-
-    if (updateTimer != null) {
-      clearTimeout(updateTimer);
-    }
-
-    load()
-      .then((update) => {
-        let ts = new Date(update.updatedAt);
-        if (updatedAt != null && ts <= updatedAt) {
-          return;
-        }
-
-        for (let [s, ds] of Object.entries(update.stations)) {
-          arrivals.set(s, ds);
-          setnx(s, true);
-        }
-
-        updatedAt = ts;
-        offset = update.offset;
-        arrivals = arrivals;
-        departures = update.departures;
-      })
-      .finally(() => {
-        updating = false;
-        updateTimer = setTimeout(updater, updateIntervalMs);
-      });
-  };
-
-  reset();
-  updater();
-
-  $: filteredDepartures = departures
+  $: filteredDepartures = $departures
     .filter((d) => $display.get(d.sta) ?? true)
     .slice(0, 10);
+
+  reset();
 </script>
 
 <div class="container">
   <div class="toolkit">
     {#each [...$display.entries()].sort( ([sa], [sb]) => (sa > sb ? 1 : 0) ) as [station, include]}
       <ToggleButton click={() => toggle(station)} active={include}
-        >{station} ({arrivals.get(station) ?? 0})</ToggleButton
+        >{station} ({$stations.get(station) ?? 0})</ToggleButton
       >
     {/each}
   </div>
   <div class="settings">
     <span class="offset"
-      >{#if offset > 0}(+{offset} min){:else}realtime{/if}</span
+      >{#if $offset > 0}(+{$offset} min){:else}realtime{/if}</span
     >
-    <button on:click={() => updater()}>&#9842;</button>
+    <button disabled={$updating} on:click={() => updater()}>&#9842;</button>
   </div>
   <div class="state">
-    <TimeSince tick={true} when={updatedAt}>updated</TimeSince>
+    <TimeSince tick={true} when={$updatedAt}>updated</TimeSince>
   </div>
   <div class="display">
-    {#if filteredDepartures.length == 0}
-      <p>No departures</p>
+    {#if !$didUpdate || filteredDepartures.length == 0}
+      <p class="larger">No departures</p>
     {:else}
       <Departures departures={filteredDepartures} />
     {/if}
   </div>
   <div class="indicators">
-    <SlowUpdate after={500} active={updating} />
+    <SlowUpdate after={500} active={$updating} />
   </div>
 </div>
 
@@ -162,6 +127,10 @@
     justify-self: end;
     align-self: center;
     grid-area: 1 / 3 / 2 / 4;
+  }
+
+  p.larger {
+    font-size: var(--font-size-large);
   }
 
   button {
