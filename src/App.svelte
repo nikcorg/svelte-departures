@@ -11,12 +11,13 @@
   let arrivals = new Map<string, number>();
   let offset: number = 0;
   let updatedAt: Date | null = null;
-  let age: string | null = null;
 
   const updateIntervalMs = 30e3;
   const sourceURL = "https://nikc.kapsi.fi/departures/update.json";
   const load = (): Promise<Update> =>
     fetch(sourceURL).then((r) => r.json() as unknown as Update);
+
+  // const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   let updateTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -72,14 +73,11 @@
       {/each}
     </div>
     <div class="preferences">
+      <SlowUpdate after={500} active={updating} />
       <span class="offset"
         >{#if offset > 0}(+{offset} min){:else}realtime{/if}</span
       >
-      {#if updating}
-        <SlowUpdate after={500} active={updating} />
-      {:else}
-        <button on:click={() => updater()}>&#9842;</button>
-      {/if}
+      <button on:click={() => updater()}>&#9842;</button>
     </div>
   </div>
 
@@ -179,6 +177,7 @@
   }
 
   .offset {
+    margin-left: 15px;
     margin-right: 15px;
   }
 </style>
