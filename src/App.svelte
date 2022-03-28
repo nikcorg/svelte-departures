@@ -38,7 +38,7 @@
   <div class="toolkit">
     {#each fs as [station, include]}
       <ToggleButton click={() => toggle(station)} active={include}
-        >{station} ({$stations.get(station) ?? 0})</ToggleButton
+        >{station} ({$stations.get(station) ?? "-"})</ToggleButton
       >
     {/each}
   </div>
