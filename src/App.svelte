@@ -1,20 +1,20 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
   import Throbber from "./Throbber.svelte";
   import TimeSince from "./TimeSince.svelte";
+  import ToggleButton from "./ToggleButton.svelte";
 
-  import { display, toggle, setnx, reset } from "./settings";
   import {
-    stations,
     departures,
+    didUpdate,
     offset,
+    stations,
     updatedAt,
     updating,
-    didUpdate,
   } from "./updater";
+  import { display, toggle, reset, setnx } from "./settings";
 
   onMount(reset);
 
