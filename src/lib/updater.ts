@@ -14,7 +14,7 @@ const stop = () => clearTimeout(updateTicker);
 
 // wait between updates in milliseconds
 const intervalMin = 5e3;
-const updateInterval = 60e3;
+const updateIntervalMax = 300e3;
 
 const fetchJSON = <T>(updateURL: string): Promise<T> =>
   fetch(updateURL, { mode: "cors" }).then((r) => r.json() as unknown as T);
@@ -53,7 +53,7 @@ const update = readable<Updater>(
         .finally(() => {
           set((state = { ...state, updating: false }));
 
-          let interval = updateInterval;
+          let interval = updateIntervalMax;
 
           if (state.lastUpdate.nextUpdateAfter) {
             interval = Math.max(
