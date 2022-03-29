@@ -14,12 +14,10 @@
     updatedAt,
     updating,
     didUpdate,
-    updater,
     stop,
   } from "./updater";
 
   onMount(reset);
-  onMount(updater);
   onDestroy(stop);
 
   // all stations enabled by default
@@ -44,9 +42,8 @@
   </div>
   <div class="settings">
     <span class="offset"
-      >{#if $offset > 0}(+{$offset} min){:else}realtime{/if}</span
+      >{#if $offset > 0}+{$offset} min{:else}realtime{/if}</span
     >
-    <button disabled={$updating} on:click={() => updater()}>&#9842;</button>
   </div>
   <div class="state">
     {#if $didUpdate}

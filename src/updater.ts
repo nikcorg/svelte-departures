@@ -9,7 +9,6 @@ interface Updater {
 }
 
 let updateTicker: ReturnType<typeof setTimeout>;
-let updater: () => void;
 
 const stop = () => clearTimeout(updateTicker);
 
@@ -29,7 +28,7 @@ const update = readable<Updater>(
       lastUpdate: {} as any,
     } as Updater;
 
-    updater = () => {
+    let updater = () => {
       if (state.updating) {
         return;
       }
@@ -69,6 +68,8 @@ const update = readable<Updater>(
           updateTicker = setTimeout(updater, interval);
         });
     };
+
+    updater();
   }
 );
 
@@ -108,13 +109,4 @@ const updatedAt = derived(
 const didUpdate = derived(update, ({ didUpdate }) => didUpdate);
 const updating = derived(update, ({ updating }) => updating);
 
-export {
-  departures,
-  didUpdate,
-  offset,
-  stations,
-  updatedAt,
-  updating,
-  updater,
-  stop,
-};
+export { departures, didUpdate, offset, stations, updatedAt, updating, stop };
