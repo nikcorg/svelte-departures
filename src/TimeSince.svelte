@@ -3,19 +3,21 @@
   import { onDestroy } from "svelte";
 
   export let when: Date | null;
-  export let live: boolean;
+  export let live: boolean = true;
+  export let format: Intl.RelativeTimeFormatStyle = "narrow";
 
-  const rtf = new Intl.RelativeTimeFormat("en", { style: "narrow" });
+  const rtf = new Intl.RelativeTimeFormat("en", { style: format });
 
   const timeSince = (when: Date): string => {
     let now = Math.floor(Date.now() / 1000);
     let then = Math.floor(when.getTime() / 1000);
     let secs = now - then;
-    let mins = Math.floor(secs / 60);
 
-    if (mins < 1) {
+    if (secs < 60) {
       return rtf.format(-secs, "second");
     }
+
+    let mins = Math.floor(secs / 60);
 
     return rtf.format(-mins, "minute");
   };
@@ -31,14 +33,16 @@
 
   let ab: AbortController;
 
-  $: if (live && when != null) {
+  const reset = () => {
     if (ab != null) {
       ab.abort;
     }
+  };
 
+  onDestroy(reset);
+
+  $: if (live && when != null) {
     ab = new AbortController();
-
-    onDestroy(ab.abort);
     animationInterval(1000, ab.signal, updateAge);
   }
 </script>
