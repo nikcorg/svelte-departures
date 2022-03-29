@@ -2,46 +2,42 @@
   import { onDestroy } from "svelte";
   import { animationInterval } from "./lib/animationinterval";
 
+  const throbbers = "⠷⠯⠟⠻⠽⠾".split("");
+
   export let active: boolean;
-  export let displayAfter: number;
+  export let displayAfter: number = 0;
 
   let slow: boolean = false;
+  let slowTimer: ReturnType<typeof setTimeout>;
+  let ticker: AbortController;
+  let ticks = 0;
 
   const style = (active: boolean, slow: boolean): string =>
     [active ? "active" : "inactive", active && slow ? "slow" : ""].join(" ");
 
-  let slowTimer: ReturnType<typeof setTimeout>;
-  let tickTimer: AbortController;
+  const tick = () => (ticks = ticks + 1);
 
-  const cleanup = () => {
+  const reset = () => {
     clearTimeout(slowTimer);
-    if (tickTimer) {
-      tickTimer.abort();
+    if (ticker) {
+      ticker.abort();
     }
+    slow = false;
   };
 
-  onDestroy(cleanup);
-
-  let ticks = 0;
-  let throbbers = "⠯⠟⠻⠽⠾⠷".split("");
-  $: throbber = throbbers[ticks % throbbers.length];
-
-  const tick = () => {
-    ticks = ticks + 1;
-  };
+  onDestroy(reset);
 
   $: if (active) {
-    clearTimeout(slowTimer);
-    setTimeout(() => (slow = true), displayAfter);
+    reset();
 
-    if (tickTimer != null) {
-      tickTimer.abort();
-    }
-    tickTimer = new AbortController();
-    animationInterval(200, tickTimer.signal, tick);
+    ticker = new AbortController();
+    animationInterval(200, ticker.signal, tick);
+    setTimeout(() => (slow = true), displayAfter);
   } else {
-    cleanup();
+    reset();
   }
+
+  $: throbber = throbbers[ticks % throbbers.length];
 </script>
 
 <span class={style(active, slow)}
