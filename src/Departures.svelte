@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Departure } from "./types";
+  import type { Departure } from "./lib/types";
 
   export let departures: Departure[];
 

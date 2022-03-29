@@ -13,8 +13,8 @@
     stations,
     updatedAt,
     updating,
-  } from "./updater";
-  import { display, toggle, reset, setnx } from "./settings";
+  } from "./lib/updater";
+  import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);
 

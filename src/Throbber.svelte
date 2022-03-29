@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { animationInterval } from "./animationinterval";
+  import { animationInterval } from "./lib/animationinterval";
 
   export let active: boolean;
   export let displayAfter: number;

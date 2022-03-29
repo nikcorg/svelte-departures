@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { animationInterval } from "./animationinterval";
+  import { animationInterval } from "./lib/animationinterval";
   import { onDestroy } from "svelte";
 
   export let when: Date | null;
