@@ -140,6 +140,7 @@
     font-size: var(--font-size-large);
   }
 
+  /* kept for future reference for a planned settings button
   button {
     background-color: var(--fg);
     border: 1px solid var(--bg);
@@ -150,5 +151,5 @@
     padding: 8px 10px 5px 10px;
     min-width: 30px;
     line-height: 1;
-  }
+  } */
 </style>
