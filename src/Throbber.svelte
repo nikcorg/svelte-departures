@@ -3,7 +3,7 @@
   import { animationInterval } from "./animationinterval";
 
   export let active: boolean;
-  export let after: number;
+  export let displayAfter: number;
 
   let slow: boolean = false;
 
@@ -32,7 +32,7 @@
 
   $: if (active) {
     clearTimeout(slowTimer);
-    setTimeout(() => (slow = true), after);
+    setTimeout(() => (slow = true), displayAfter);
 
     if (tickTimer != null) {
       tickTimer.abort();

@@ -3,7 +3,7 @@
 
   import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
-  import SlowUpdate from "./SlowUpdate.svelte";
+  import Throbber from "./Throbber.svelte";
   import TimeSince from "./TimeSince.svelte";
 
   import { display, toggle, setnx, reset } from "./settings";
@@ -61,7 +61,7 @@
     {/if}
   </div>
   <div class="indicators">
-    <SlowUpdate after={500} active={$updating} />
+    <Throbber displayAfter={500} active={$updating} />
   </div>
 </div>
 
