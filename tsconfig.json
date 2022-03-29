@@ -6,8 +6,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "noImplicitAny": true,
+    "noImplicitReturns": true,
     "strict": true,
-    "strictNullChecks": true,
     "lib": ["dom", "esnext"]
   }
 }
