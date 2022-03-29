@@ -12,6 +12,16 @@ const production = !process.env.ROLLUP_WATCH;
 const tsConfig = require("./tsconfig.json");
 const sourceMap = tsConfig.compilerOptions.sourceMap ?? !production;
 
+const assertNotEmptyOrNull = (x) => {
+  if (x == null) {
+    throw new Error("unexpected null");
+  } else if (x == "") {
+    throw new Error("expected non-empty value");
+  }
+
+  return x;
+};
+
 function serve() {
   let server;
 
@@ -71,7 +81,7 @@ export default {
     replace({
       preventAssignment: true,
       values: {
-        __UPDATE_URL__: process.env.UPDATE_URL,
+        __UPDATE_URL__: assertNotEmptyOrNull(process.env.UPDATE_URL),
         __BUILD_HASH__: process.env.BUILD_HASH ?? "<unset>",
         __BUILD_DATE__: new Date().toUTCString(),
       },
