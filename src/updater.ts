@@ -17,8 +17,8 @@ const stop = () => clearTimeout(updateTicker);
 const intervalMin = 5e3;
 const updateInterval = 60e3;
 
-const load = (): Promise<Update> =>
-  fetch(updateURL, { mode: "cors" }).then((r) => r.json() as unknown as Update);
+const fetchJSON = <T>(updateURL: string): Promise<T> =>
+  fetch(updateURL, { mode: "cors" }).then((r) => r.json() as unknown as T);
 
 const update = readable<Updater>(
   { updating: false, didUpdate: false } as Updater,
@@ -36,7 +36,7 @@ const update = readable<Updater>(
 
       set((state = { ...state, updating: true }));
 
-      load()
+      fetchJSON<Update>(updateURL)
         .then((page) => {
           // Ignore stale updates
           if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
