@@ -10,18 +10,11 @@
 
 <style>
   button {
-    margin-left: 5px;
-  }
-
-  button:nth-of-type(1) {
-    margin-left: 0;
-  }
-
-  button {
     background-color: var(--fg);
     border: 1px solid var(--bg);
     color: var(--bg);
 
+    margin-left: 5px;
     margin-bottom: 0;
     border-radius: 10px;
     padding: 8px 10px 5px 10px;
@@ -31,6 +24,10 @@
     transition-property: color, background-color;
     transition-duration: 0.3s;
     transition-timing-function: ease-out;
+  }
+
+  button:nth-of-type(1) {
+    margin-left: 0;
   }
 
   button.inactive {
