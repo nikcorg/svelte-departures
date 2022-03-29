@@ -61,44 +61,6 @@
 </div>
 
 <style>
-  @font-face {
-    font-family: "dot_matrixregular";
-    src: url("/fonts/dot_matrix_regular-webfont.woff2") format("woff2"),
-      url("/fonts/dot_matrix_regular-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: "dot_matrixbold";
-    src: url("/fonts/dot_matrix_bold-webfont.woff2") format("woff2"),
-      url("/fonts/dot_matrix_bold-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-
-  :root {
-    --bg: rgb(0, 0, 0);
-    --fg: rgb(236, 161, 32);
-    --font-size: 120%;
-    --font-size-large: 160%;
-    --font-regular: "dot_matrixregular";
-    --font-bold: "dot_matrixbold";
-  }
-
-  :global(*) {
-    box-sizing: border-box;
-  }
-
-  :global(body) {
-    background-color: var(--bg);
-    color: var(--fg);
-    overflow: hidden;
-    font-family: var(--font-regular), monospace;
-    font-size: var(--font-size);
-    padding: 0;
-  }
-
   .container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
