@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
 
   import ToggleButton from "./ToggleButton.svelte";
   import Departures from "./Departures.svelte";
@@ -14,11 +14,9 @@
     updatedAt,
     updating,
     didUpdate,
-    stop,
   } from "./updater";
 
   onMount(reset);
-  onDestroy(stop);
 
   // all stations enabled by default
   $: for (let [s] of $stations) {

@@ -70,6 +70,8 @@ const update = readable<Updater>(
     };
 
     updater();
+
+    return stop;
   }
 );
 
