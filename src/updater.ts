@@ -38,6 +38,7 @@ const update = readable<Updater>(
 
       load()
         .then((page) => {
+          // Ignore stale updates
           if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
             return;
           }
