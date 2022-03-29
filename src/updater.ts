@@ -18,7 +18,9 @@ const update = readable<Updater>(
   (set) => {
     const updateIntervalMs = 30e3;
     const load = (): Promise<Update> =>
-      fetch(updateURL).then((r) => r.json() as unknown as Update);
+      fetch(updateURL, { mode: "cors" }).then(
+        (r) => r.json() as unknown as Update
+      );
 
     let state: Updater = {} as Updater;
 
