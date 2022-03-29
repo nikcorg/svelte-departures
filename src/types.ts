@@ -13,4 +13,5 @@ export interface Update {
   offset: number;
   stations: { [k: string]: number };
   updatedAt: string;
+  nextUpdateAfter: string;
 }

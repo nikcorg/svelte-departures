@@ -13,16 +13,23 @@ let updater: () => void;
 
 const stop = () => clearTimeout(updateTicker);
 
+// wait between updates in milliseconds
+const intervalMin = 5e3;
+const updateInterval = 60e3;
+
 const update = readable<Updater>(
   { updating: false, didUpdate: false } as Updater,
   (set) => {
-    const updateIntervalMs = 30e3;
     const load = (): Promise<Update> =>
       fetch(updateURL, { mode: "cors" }).then(
         (r) => r.json() as unknown as Update
       );
 
-    let state: Updater = {} as Updater;
+    let state: Updater = {
+      didUpdate: false,
+      updating: false,
+      lastUpdate: {} as any,
+    } as Updater;
 
     updater = () => {
       if (state.updating) {
@@ -32,6 +39,11 @@ const update = readable<Updater>(
       set((state = { ...state, updating: true }));
       load()
         .then((page) => {
+          if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
+            console.log("ignoring stale update");
+            return;
+          }
+
           set(
             (state = {
               ...state,
@@ -42,7 +54,20 @@ const update = readable<Updater>(
         })
         .finally(() => {
           set((state = { ...state, updating: false }));
-          updateTicker = setTimeout(updater, updateIntervalMs);
+
+          let interval = updateInterval;
+
+          if (state.lastUpdate.nextUpdateAfter) {
+            interval = Math.max(
+              intervalMin,
+              Math.min(
+                Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(),
+                interval
+              )
+            );
+          }
+
+          updateTicker = setTimeout(updater, interval);
         });
     };
   }
