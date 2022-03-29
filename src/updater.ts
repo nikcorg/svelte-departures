@@ -111,4 +111,4 @@ const updatedAt = derived(
 const didUpdate = derived(update, ({ didUpdate }) => didUpdate);
 const updating = derived(update, ({ updating }) => updating);
 
-export { departures, didUpdate, offset, stations, updatedAt, updating, stop };
+export { departures, didUpdate, offset, stations, updatedAt, updating };
