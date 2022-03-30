@@ -26,6 +26,10 @@
     transition-timing-function: ease-out;
   }
 
+  button:focus {
+    outline: 0;
+  }
+
   button:nth-of-type(1) {
     margin-left: 0;
   }
