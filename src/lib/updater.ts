@@ -2,20 +2,20 @@ import type { Update } from "./types";
 import { readable, derived } from "svelte/store";
 import { updateURL } from "./config";
 
-interface UpdaterState {
+interface Updater {
   updating: boolean;
 }
 
-interface ZeroState extends UpdaterState {
+interface ZeroState extends Updater {
   didUpdate: false;
 }
 
-interface UpdatedState extends UpdaterState {
+interface UpdatedState extends Updater {
   didUpdate: true;
   lastUpdate: Update;
 }
 
-type Updater = ZeroState | UpdatedState;
+type UpdaterState = ZeroState | UpdatedState;
 
 let updateTicker: ReturnType<typeof setTimeout>;
 
@@ -28,58 +28,61 @@ const updateIntervalMax = 300e3;
 const fetchJSON = <T>(updateURL: string): Promise<T> =>
   fetch(updateURL, { mode: "cors" }).then(r => r.json() as unknown as T);
 
-const update = readable<Updater>({ updating: false, didUpdate: false } as Updater, set => {
-  let state: Updater = {
-    didUpdate: false,
-    updating: false,
-  } as Updater;
+const update = readable<UpdaterState>(
+  { updating: false, didUpdate: false } as UpdaterState,
+  set => {
+    let state: UpdaterState = {
+      didUpdate: false,
+      updating: false,
+    } as UpdaterState;
 
-  let updater = () => {
-    if (state.updating) {
-      return;
-    }
+    let updater = () => {
+      if (state.updating) {
+        return;
+      }
 
-    set((state = { ...state, updating: true }));
+      set((state = { ...state, updating: true }));
 
-    fetchJSON<Update>(updateURL)
-      .then(page => {
-        // Ignore stale updates
-        if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
-          return;
-        }
+      fetchJSON<Update>(updateURL)
+        .then(page => {
+          // Ignore stale updates
+          if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
+            return;
+          }
 
-        set(
-          (state = {
-            ...state,
-            didUpdate: true,
-            lastUpdate: page,
-          }),
-        );
-      })
-      .finally(() => {
-        set((state = { ...state, updating: false }));
-
-        let interval = updateIntervalMax;
-
-        if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
-          interval = Math.max(
-            intervalMin,
-            Math.min(Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(), interval),
+          set(
+            (state = {
+              ...state,
+              didUpdate: true,
+              lastUpdate: page,
+            }),
           );
-        }
+        })
+        .finally(() => {
+          set((state = { ...state, updating: false }));
 
-        updateTicker = setTimeout(updater, interval);
-      });
-  };
+          let interval = updateIntervalMax;
 
-  updater();
+          if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
+            interval = Math.max(
+              intervalMin,
+              Math.min(Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(), interval),
+            );
+          }
 
-  return stop;
-});
+          updateTicker = setTimeout(updater, interval);
+        });
+    };
+
+    updater();
+
+    return stop;
+  },
+);
 
 const withDefault =
   <T>(zero: T, f: (_: Update) => T) =>
-  (u: Updater) => {
+  (u: UpdaterState) => {
     if (!u.didUpdate) {
       return zero;
     }
