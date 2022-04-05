@@ -2,11 +2,20 @@ import type { Update } from "./types";
 import { readable, derived } from "svelte/store";
 import { updateURL } from "./config";
 
-interface Updater {
-  didUpdate: boolean;
+interface UpdaterState {
   updating: boolean;
+}
+
+interface ZeroState extends UpdaterState {
+  didUpdate: false;
+}
+
+interface UpdatedState extends UpdaterState {
+  didUpdate: true;
   lastUpdate: Update;
 }
+
+type Updater = ZeroState | UpdatedState;
 
 let updateTicker: ReturnType<typeof setTimeout>;
 
@@ -25,7 +34,6 @@ const update = readable<Updater>(
     let state: Updater = {
       didUpdate: false,
       updating: false,
-      lastUpdate: {} as any,
     } as Updater;
 
     let updater = () => {
@@ -38,7 +46,10 @@ const update = readable<Updater>(
       fetchJSON<Update>(updateURL)
         .then((page) => {
           // Ignore stale updates
-          if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
+          if (
+            state.didUpdate &&
+            page.updatedAt == state.lastUpdate.updatedAt
+          ) {
             return;
           }
 
@@ -55,7 +66,7 @@ const update = readable<Updater>(
 
           let interval = updateIntervalMax;
 
-          if (state.lastUpdate.nextUpdateAfter) {
+          if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
             interval = Math.max(
               intervalMin,
               Math.min(
