@@ -3,3 +3,4 @@ public/build
 *.swp
 .envrc
 NOTES
+.DS_Store
