@@ -23,8 +23,8 @@ export const reset = () => {
 
 // toggle the value for station
 export const toggle = (station: string) =>
-  update((x) => persist(x.set(station, !(x.get(station) ?? true))));
+  update(x => persist(x.set(station, !(x.get(station) ?? true))));
 
 // Set if Not eXists
 export const setnx = (station: string, v: boolean) =>
-  update((x) => persist(x.set(station, x.get(station) ?? v)));
+  update(x => persist(x.set(station, x.get(station) ?? v)));

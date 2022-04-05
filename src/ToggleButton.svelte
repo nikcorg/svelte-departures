@@ -2,8 +2,7 @@
   export let active: boolean;
   export let click: () => void;
 
-  const activeStyle = (active: boolean): string =>
-    active ? "active" : "inactive";
+  const activeStyle = (active: boolean): string => (active ? "active" : "inactive");
 </script>
 
 <button class={activeStyle(active)} on:click={click}><slot /></button>

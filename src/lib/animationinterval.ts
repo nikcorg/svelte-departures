@@ -1,14 +1,8 @@
 // Original from: https://gist.github.com/jakearchibald/cb03f15670817001b1157e62a076fe95
-export function animationInterval(
-  ms: number,
-  signal: AbortSignal,
-  callback: (_: number) => void
-) {
+export function animationInterval(ms: number, signal: AbortSignal, callback: (_: number) => void) {
   // Prefer currentTime, as it'll better sync animations queued in the
   // same frame, but if it isn't supported, performance.now() is fine.
-  const start =
-    (document.timeline ? document.timeline.currentTime : performance.now()) ??
-    0;
+  const start = (document.timeline ? document.timeline.currentTime : performance.now()) ?? 0;
 
   function frame(time: number) {
     if (signal.aborted) return;

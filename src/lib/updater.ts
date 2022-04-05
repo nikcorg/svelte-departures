@@ -26,65 +26,56 @@ const intervalMin = 5e3;
 const updateIntervalMax = 300e3;
 
 const fetchJSON = <T>(updateURL: string): Promise<T> =>
-  fetch(updateURL, { mode: "cors" }).then((r) => r.json() as unknown as T);
+  fetch(updateURL, { mode: "cors" }).then(r => r.json() as unknown as T);
 
-const update = readable<Updater>(
-  { updating: false, didUpdate: false } as Updater,
-  (set) => {
-    let state: Updater = {
-      didUpdate: false,
-      updating: false,
-    } as Updater;
+const update = readable<Updater>({ updating: false, didUpdate: false } as Updater, set => {
+  let state: Updater = {
+    didUpdate: false,
+    updating: false,
+  } as Updater;
 
-    let updater = () => {
-      if (state.updating) {
-        return;
-      }
+  let updater = () => {
+    if (state.updating) {
+      return;
+    }
 
-      set((state = { ...state, updating: true }));
+    set((state = { ...state, updating: true }));
 
-      fetchJSON<Update>(updateURL)
-        .then((page) => {
-          // Ignore stale updates
-          if (
-            state.didUpdate &&
-            page.updatedAt == state.lastUpdate.updatedAt
-          ) {
-            return;
-          }
+    fetchJSON<Update>(updateURL)
+      .then(page => {
+        // Ignore stale updates
+        if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
+          return;
+        }
 
-          set(
-            (state = {
-              ...state,
-              didUpdate: true,
-              lastUpdate: page,
-            })
+        set(
+          (state = {
+            ...state,
+            didUpdate: true,
+            lastUpdate: page,
+          }),
+        );
+      })
+      .finally(() => {
+        set((state = { ...state, updating: false }));
+
+        let interval = updateIntervalMax;
+
+        if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
+          interval = Math.max(
+            intervalMin,
+            Math.min(Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(), interval),
           );
-        })
-        .finally(() => {
-          set((state = { ...state, updating: false }));
+        }
 
-          let interval = updateIntervalMax;
+        updateTicker = setTimeout(updater, interval);
+      });
+  };
 
-          if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
-            interval = Math.max(
-              intervalMin,
-              Math.min(
-                Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(),
-                interval
-              )
-            );
-          }
+  updater();
 
-          updateTicker = setTimeout(updater, interval);
-        });
-    };
-
-    updater();
-
-    return stop;
-  }
-);
+  return stop;
+});
 
 const withDefault =
   <T>(zero: T, f: (_: Update) => T) =>
@@ -98,25 +89,25 @@ const withDefault =
 
 const offset = derived(
   update,
-  withDefault(0, (u) => u.offset)
+  withDefault(0, u => u.offset),
 );
 
 const stations = derived(
   update,
   withDefault(
     new Map<string, number>(),
-    ({ stations }) => new Map<string, number>(Object.entries(stations))
-  )
+    ({ stations }) => new Map<string, number>(Object.entries(stations)),
+  ),
 );
 
 const departures = derived(
   update,
-  withDefault([], ({ departures }) => departures)
+  withDefault([], ({ departures }) => departures),
 );
 
 const updatedAt = derived(
   update,
-  withDefault(new Date(0), ({ updatedAt }) => new Date(updatedAt))
+  withDefault(new Date(0), ({ updatedAt }) => new Date(updatedAt)),
 );
 
 const didUpdate = derived(update, ({ didUpdate }) => didUpdate);

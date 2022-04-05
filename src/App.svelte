@@ -6,14 +6,7 @@
   import TimeSince from "./TimeSince.svelte";
   import ToggleButton from "./ToggleButton.svelte";
 
-  import {
-    departures,
-    didUpdate,
-    offset,
-    stations,
-    updatedAt,
-    updating,
-  } from "./lib/updater";
+  import { departures, didUpdate, offset, stations, updatedAt, updating } from "./lib/updater";
   import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);
@@ -24,7 +17,7 @@
   }
 
   // derive filtered departures
-  $: ds = $departures.filter((d) => $display.get(d.sta) ?? true).slice(0, 10);
+  $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 10);
 
   // derive filters
   $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));
