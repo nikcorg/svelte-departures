@@ -1,6 +1,8 @@
 import type { Update } from "./types";
 import { readable, derived } from "svelte/store";
 import { updateURL } from "./config";
+import { withRetries } from "./withretries";
+import { fetchJSON } from "./fetchjson";
 
 interface Updater {
   updating: boolean;
@@ -25,8 +27,9 @@ const stop = () => clearTimeout(updateTicker);
 const intervalMin = 5e3;
 const updateIntervalMax = 300e3;
 
-const fetchJSON = <T>(updateURL: string): Promise<T> =>
-  fetch(updateURL, { mode: "cors" }).then(r => r.json() as unknown as T);
+// retry config
+const retryDelayMs = 500;
+const maxAttempts = 10;
 
 const update = readable<UpdaterState>(
   { updating: false, didUpdate: false } as UpdaterState,
@@ -43,7 +46,7 @@ const update = readable<UpdaterState>(
 
       set((state = { ...state, updating: true }));
 
-      fetchJSON<Update>(updateURL)
+      withRetries(retryDelayMs, maxAttempts, () => fetchJSON<Update>(updateURL))
         .then(page => {
           // Ignore stale updates
           if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
