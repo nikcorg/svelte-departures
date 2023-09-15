@@ -9,11 +9,10 @@ interface Updater {
 }
 
 interface ZeroState extends Updater {
-  didUpdate: false;
+  lastUpdate: null;
 }
 
 interface UpdatedState extends Updater {
-  didUpdate: true;
   lastUpdate: Update;
 }
 
@@ -31,62 +30,58 @@ const updateIntervalMax = 300e3;
 const retryDelayMs = 500;
 const maxAttempts = 10;
 
-const update = readable<UpdaterState>(
-  { updating: false, didUpdate: false } as UpdaterState,
-  updateExternalState => {
-    let internalState: UpdaterState = {
-      didUpdate: false,
-      updating: false,
-    };
+const update = readable<UpdaterState>({ updating: false } as UpdaterState, updateExternalState => {
+  let internalState: UpdaterState = {
+    lastUpdate: null,
+    updating: false,
+  };
 
-    let updater = () => {
-      if (internalState.updating) {
-        return;
-      }
+  let updater = () => {
+    if (internalState.updating) {
+      return;
+    }
 
-      updateExternalState((internalState = { ...internalState, updating: true }));
+    updateExternalState((internalState = { ...internalState, updating: true }));
 
-      withRetries(retryDelayMs, maxAttempts, () => fetchJSON<Update>(updateURL))
-        .then(page => {
-          // Ignore stale updates
-          if (internalState.didUpdate && page.updatedAt == internalState.lastUpdate.updatedAt) {
-            return;
-          }
+    withRetries(retryDelayMs, maxAttempts, () => fetchJSON<Update>(updateURL))
+      .then(page => {
+        // Ignore stale updates
+        if (page.updatedAt == internalState.lastUpdate?.updatedAt) {
+          return;
+        }
 
-          updateExternalState(
-            (internalState = {
-              ...internalState,
-              didUpdate: true,
-              lastUpdate: page,
-            }),
+        updateExternalState(
+          (internalState = {
+            ...internalState,
+            lastUpdate: page,
+          }),
+        );
+      })
+      .finally(() => {
+        updateExternalState((internalState = { ...internalState, updating: false }));
+
+        let interval = updateIntervalMax;
+
+        if (internalState.lastUpdate?.nextUpdateAfter) {
+          interval = Math.max(
+            intervalMin,
+            Math.min(Date.parse(internalState.lastUpdate.nextUpdateAfter) - Date.now(), interval),
           );
-        })
-        .finally(() => {
-          updateExternalState((internalState = { ...internalState, updating: false }));
+        }
 
-          let interval = updateIntervalMax;
+        updateTicker = setTimeout(updater, interval);
+      });
+  };
 
-          if (internalState.didUpdate && internalState.lastUpdate.nextUpdateAfter) {
-            interval = Math.max(
-              intervalMin,
-              Math.min(Date.parse(internalState.lastUpdate.nextUpdateAfter) - Date.now(), interval),
-            );
-          }
+  updater();
 
-          updateTicker = setTimeout(updater, interval);
-        });
-    };
-
-    updater();
-
-    return stop;
-  },
-);
+  return stop;
+});
 
 const withDefault =
   <T>(zero: T, f: (_: Update) => T) =>
   (u: UpdaterState) => {
-    if (!u.didUpdate) {
+    if (!u.lastUpdate) {
       return zero;
     }
 
@@ -116,7 +111,7 @@ const updatedAt = derived(
   withDefault(new Date(0), ({ updatedAt }) => new Date(updatedAt)),
 );
 
-const didUpdate = derived(update, ({ didUpdate }) => didUpdate);
+const didUpdate = derived(update, ({ lastUpdate }) => lastUpdate != null);
 const updating = derived(update, ({ updating }) => updating);
 
 export { departures, didUpdate, offset, stations, updatedAt, updating };
