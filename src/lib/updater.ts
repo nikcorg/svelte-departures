@@ -27,7 +27,7 @@ const intervalMin = 5e3;
 const updateIntervalMax = 300e3;
 
 // retry config
-const retryDelayMs = 500;
+const retryWait = 500;
 const maxAttempts = 10;
 
 const update = readable<UpdaterState>({ updating: false } as UpdaterState, updateExternalState => {
@@ -43,7 +43,7 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
 
     updateExternalState((internalState = { ...internalState, updating: true }));
 
-    withRetries(retryDelayMs, maxAttempts, () => fetchJSON<Update>(updateURL))
+    withRetries(retryWait, maxAttempts, () => fetchJSON<Update>(updateURL))
       .then(page => {
         // Ignore stale updates
         if (page.updatedAt == internalState.lastUpdate?.updatedAt) {
