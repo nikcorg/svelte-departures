@@ -8,6 +8,8 @@ const { set, subscribe, update } = writable(new Map<string, boolean>());
 // the subscribable
 export const display = { subscribe };
 
+const initialState = JSON.stringify([]);
+
 const persist = tap((nextState: Map<string, boolean>) => {
   try {
     localStorage.setItem(storKey, JSON.stringify([...nextState.entries()]));
@@ -17,7 +19,7 @@ const persist = tap((nextState: Map<string, boolean>) => {
 // reset to the persisted state or the default state
 export const reset = () => {
   try {
-    set(new Map(JSON.parse(localStorage.getItem(storKey) ?? "[]")));
+    set(new Map(JSON.parse(localStorage.getItem(storKey) ?? initialState)));
   } catch {}
 };
 
