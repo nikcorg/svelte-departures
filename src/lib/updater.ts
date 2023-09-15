@@ -36,7 +36,7 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
     updating: false,
   };
 
-  let updater = () => {
+  const updater = () => {
     if (internalState.updating) {
       return;
     }
