@@ -33,43 +33,43 @@ const maxAttempts = 10;
 
 const update = readable<UpdaterState>(
   { updating: false, didUpdate: false } as UpdaterState,
-  set => {
-    let state: UpdaterState = {
+  updateExternalState => {
+    let internalState: UpdaterState = {
       didUpdate: false,
       updating: false,
-    } as UpdaterState;
+    };
 
     let updater = () => {
-      if (state.updating) {
+      if (internalState.updating) {
         return;
       }
 
-      set((state = { ...state, updating: true }));
+      updateExternalState((internalState = { ...internalState, updating: true }));
 
       withRetries(retryDelayMs, maxAttempts, () => fetchJSON<Update>(updateURL))
         .then(page => {
           // Ignore stale updates
-          if (state.didUpdate && page.updatedAt == state.lastUpdate.updatedAt) {
+          if (internalState.didUpdate && page.updatedAt == internalState.lastUpdate.updatedAt) {
             return;
           }
 
-          set(
-            (state = {
-              ...state,
+          updateExternalState(
+            (internalState = {
+              ...internalState,
               didUpdate: true,
               lastUpdate: page,
             }),
           );
         })
         .finally(() => {
-          set((state = { ...state, updating: false }));
+          updateExternalState((internalState = { ...internalState, updating: false }));
 
           let interval = updateIntervalMax;
 
-          if (state.didUpdate && state.lastUpdate.nextUpdateAfter) {
+          if (internalState.didUpdate && internalState.lastUpdate.nextUpdateAfter) {
             interval = Math.max(
               intervalMin,
-              Math.min(Date.parse(state.lastUpdate.nextUpdateAfter) - Date.now(), interval),
+              Math.min(Date.parse(internalState.lastUpdate.nextUpdateAfter) - Date.now(), interval),
             );
           }
 
