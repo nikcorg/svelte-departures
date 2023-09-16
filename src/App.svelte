@@ -17,7 +17,7 @@
   }
 
   // derive filtered departures
-  $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 10);
+  $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 8);
 
   // derive filters
   $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));

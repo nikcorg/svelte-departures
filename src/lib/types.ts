@@ -2,7 +2,8 @@ export interface Departure {
   dst: string;
   due: string;
   etd: string;
-  pla: string;
+  // pla: string;
+  srv: string;
   sta: string;
 }
 
