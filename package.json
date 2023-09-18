@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "format": "prettier -w src/**/*.{ts,svelte}",
-    "build": "rollup -c",
+    "build": "rollup -c --bundleConfigAsCjs",
     "dev": "rollup -c -w --bundleConfigAsCjs",
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json"
