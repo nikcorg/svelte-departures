@@ -1,18 +1,18 @@
-import svelte from "rollup-plugin-svelte";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
-import livereload from "rollup-plugin-livereload";
+import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
-import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
-import replace from "@rollup/plugin-replace";
+import livereload from "rollup-plugin-livereload";
+import svelte from "rollup-plugin-svelte";
+import sveltePreprocess from "svelte-preprocess";
 
 const production = !process.env.ROLLUP_WATCH;
 const tsConfig = require("./tsconfig.json");
 const sourceMap = tsConfig.compilerOptions.sourceMap ?? !production;
 
-const assertNotEmptyOrNull = (x) => {
+const assertNotEmptyOrNull = x => {
   if (x == null) {
     throw new Error("unexpected null");
   } else if (x == "") {
@@ -32,14 +32,10 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require("child_process").spawn(
-        "npm",
-        ["run", "start", "--", "--dev"],
-        {
-          stdio: ["ignore", "inherit", "inherit"],
-          shell: true,
-        }
-      );
+      server = require("child_process").spawn("npm", ["run", "start", "--", "--dev"], {
+        stdio: ["ignore", "inherit", "inherit"],
+        shell: true,
+      });
 
       process.on("SIGTERM", toExit);
       process.on("exit", toExit);
@@ -91,7 +87,7 @@ export default {
       Object.assign({}, tsConfig.compilerOptions, {
         sourceMap: sourceMap,
         inlineSources: !production,
-      })
+      }),
     ),
 
     // In dev mode, call `npm run start` once

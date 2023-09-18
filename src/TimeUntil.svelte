@@ -11,7 +11,7 @@
   const timeSince = (when: Date): string => {
     let now = Math.floor(Date.now() / 1000);
     let then = Math.floor(when.getTime() / 1000);
-    let secs =  then - now;
+    let secs = then - now;
 
     if (secs < 60) {
       return rtf.format(secs, "second");

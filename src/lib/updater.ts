@@ -1,8 +1,8 @@
-import type { Update } from "./types";
-import { readable, derived } from "svelte/store";
+import { derived, readable } from "svelte/store";
 import { updateURL } from "./config";
-import { withRetries } from "./withretries";
 import { fetchJSON } from "./fetchjson";
+import type { Update } from "./types";
+import { withRetries } from "./withretries";
 
 interface Updater {
   updating: boolean;

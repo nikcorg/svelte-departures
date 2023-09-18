@@ -7,7 +7,16 @@
   import TimeUntil from "./TimeUntil.svelte";
   import ToggleButton from "./ToggleButton.svelte";
 
-  import { departures, didUpdate, names, nextCheck, offset, stations, updatedAt, updating } from "./lib/updater";
+  import {
+    departures,
+    didUpdate,
+    names,
+    nextCheck,
+    offset,
+    stations,
+    updatedAt,
+    updating,
+  } from "./lib/updater";
   import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);

@@ -41,7 +41,8 @@
 </script>
 
 <span class={style(active, slow)}
-  >{#if $$slots.default}<slot /> {/if}{throbber}</span
+  >{#if $$slots.default}<slot />
+  {/if}{throbber}</span
 >
 
 <style>
