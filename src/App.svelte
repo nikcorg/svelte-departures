@@ -4,9 +4,10 @@
   import Departures from "./Departures.svelte";
   import Throbber from "./Throbber.svelte";
   import TimeSince from "./TimeSince.svelte";
+  import TimeUntil from "./TimeUntil.svelte";
   import ToggleButton from "./ToggleButton.svelte";
 
-  import { departures, didUpdate, names, offset, stations, updatedAt, updating } from "./lib/updater";
+  import { departures, didUpdate, names, nextCheck, offset, stations, updatedAt, updating } from "./lib/updater";
   import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);
@@ -39,6 +40,10 @@
   <div class="state">
     {#if $didUpdate}
       <TimeSince live={true} when={$updatedAt}>updated</TimeSince>
+    {/if}
+
+    {#if $nextCheck}
+      <TimeUntil live={true} when={$nextCheck}>next check</TimeUntil>
     {/if}
   </div>
   <div class="display">

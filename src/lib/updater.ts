@@ -6,6 +6,7 @@ import { fetchJSON } from "./fetchjson";
 
 interface Updater {
   updating: boolean;
+  nextCheckAt: Date;
 }
 
 interface ZeroState extends Updater {
@@ -30,10 +31,10 @@ const updateIntervalMax = 300e3;
 const retryWait = 500;
 const maxAttempts = 10;
 
-const update = readable<UpdaterState>({ updating: false } as UpdaterState, updateExternalState => {
+const initialState: UpdaterState = { updating: false, nextCheckAt: new Date(), lastUpdate: null };
+const update = readable<UpdaterState>(initialState, updateExternalState => {
   let internalState: UpdaterState = {
-    lastUpdate: null,
-    updating: false,
+    ...initialState,
   };
 
   const updater = () => {
@@ -58,8 +59,6 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
         );
       })
       .finally(() => {
-        updateExternalState((internalState = { ...internalState, updating: false }));
-
         let interval = updateIntervalMax;
 
         if (internalState.lastUpdate?.nextUpdateAfter) {
@@ -68,6 +67,14 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
             Math.min(Date.parse(internalState.lastUpdate.nextUpdateAfter) - Date.now(), interval),
           );
         }
+
+        updateExternalState(
+          (internalState = {
+            ...internalState,
+            updating: false,
+            nextCheckAt: new Date(Date.now() + interval),
+          }),
+        );
 
         updateTicker = setTimeout(updater, interval);
       });
@@ -121,5 +128,6 @@ const updatedAt = derived(
 
 const didUpdate = derived(update, ({ lastUpdate }) => lastUpdate != null);
 const updating = derived(update, ({ updating }) => updating);
+const nextCheck = derived(update, ({ nextCheckAt }) => nextCheckAt);
 
-export { departures, didUpdate, names, offset, stations, updatedAt, updating };
+export { departures, didUpdate, names, nextCheck, offset, stations, updatedAt, updating };
