@@ -2,13 +2,14 @@ export interface Departure {
   dst: string;
   due: string;
   etd: string;
-  pla: string;
+  srv: string;
   sta: string;
 }
 
 export type Station = [boolean, number];
 
 export interface Update {
+  names: { [k: string]: string };
   departures: Departure[];
   // time offset used in departures query in minutes
   offset: number;

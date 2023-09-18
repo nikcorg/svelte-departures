@@ -4,9 +4,19 @@
   import Departures from "./Departures.svelte";
   import Throbber from "./Throbber.svelte";
   import TimeSince from "./TimeSince.svelte";
+  import TimeUntil from "./TimeUntil.svelte";
   import ToggleButton from "./ToggleButton.svelte";
 
-  import { departures, didUpdate, offset, stations, updatedAt, updating } from "./lib/updater";
+  import {
+    departures,
+    didUpdate,
+    names,
+    nextCheck,
+    offset,
+    stations,
+    updatedAt,
+    updating,
+  } from "./lib/updater";
   import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);
@@ -17,7 +27,7 @@
   }
 
   // derive filtered departures
-  $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 10);
+  $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 8);
 
   // derive filters
   $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));
@@ -27,7 +37,7 @@
   <div class="toolkit">
     {#each fs as [station, include]}
       <ToggleButton click={() => toggle(station)} active={include}
-        >{station} ({$stations.get(station) ?? "-"})</ToggleButton
+        >{$names.get(station)} ({$stations.get(station) ?? "-"})</ToggleButton
       >
     {/each}
   </div>
@@ -39,6 +49,10 @@
   <div class="state">
     {#if $didUpdate}
       <TimeSince live={true} when={$updatedAt}>updated</TimeSince>
+    {/if}
+
+    {#if $nextCheck}
+      <TimeUntil live={true} when={$nextCheck}>next check</TimeUntil>
     {/if}
   </div>
   <div class="display">

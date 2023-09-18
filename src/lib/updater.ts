@@ -1,11 +1,12 @@
-import type { Update } from "./types";
-import { readable, derived } from "svelte/store";
+import { derived, readable } from "svelte/store";
 import { updateURL } from "./config";
-import { withRetries } from "./withretries";
 import { fetchJSON } from "./fetchjson";
+import type { Update } from "./types";
+import { withRetries } from "./withretries";
 
 interface Updater {
   updating: boolean;
+  nextCheckAt: Date;
 }
 
 interface ZeroState extends Updater {
@@ -30,10 +31,10 @@ const updateIntervalMax = 300e3;
 const retryWait = 500;
 const maxAttempts = 10;
 
-const update = readable<UpdaterState>({ updating: false } as UpdaterState, updateExternalState => {
+const initialState: UpdaterState = { updating: false, nextCheckAt: new Date(), lastUpdate: null };
+const update = readable<UpdaterState>(initialState, updateExternalState => {
   let internalState: UpdaterState = {
-    lastUpdate: null,
-    updating: false,
+    ...initialState,
   };
 
   const updater = () => {
@@ -58,8 +59,6 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
         );
       })
       .finally(() => {
-        updateExternalState((internalState = { ...internalState, updating: false }));
-
         let interval = updateIntervalMax;
 
         if (internalState.lastUpdate?.nextUpdateAfter) {
@@ -68,6 +67,14 @@ const update = readable<UpdaterState>({ updating: false } as UpdaterState, updat
             Math.min(Date.parse(internalState.lastUpdate.nextUpdateAfter) - Date.now(), interval),
           );
         }
+
+        updateExternalState(
+          (internalState = {
+            ...internalState,
+            updating: false,
+            nextCheckAt: new Date(Date.now() + interval),
+          }),
+        );
 
         updateTicker = setTimeout(updater, interval);
       });
@@ -101,6 +108,14 @@ const stations = derived(
   ),
 );
 
+const names = derived(
+  update,
+  withDefault(
+    new Map<string, string>(),
+    ({ names }) => new Map<string, string>(Object.entries(names)),
+  ),
+);
+
 const departures = derived(
   update,
   withDefault([], ({ departures }) => departures),
@@ -113,5 +128,6 @@ const updatedAt = derived(
 
 const didUpdate = derived(update, ({ lastUpdate }) => lastUpdate != null);
 const updating = derived(update, ({ updating }) => updating);
+const nextCheck = derived(update, ({ nextCheckAt }) => nextCheckAt);
 
-export { departures, didUpdate, offset, stations, updatedAt, updating };
+export { departures, didUpdate, names, nextCheck, offset, stations, updatedAt, updating };
