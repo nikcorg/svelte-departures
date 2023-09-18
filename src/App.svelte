@@ -57,9 +57,11 @@
       <TimeSince live={true} when={$updatedAt}>updated</TimeSince>
     {/if}
 
+    <!--
     {#if $nextCheck}
       <TimeUntil live={true} when={$nextCheck}>next check</TimeUntil>
     {/if}
+    -->
   </div>
   <div class="display">
     {#if !$didUpdate || ds.length == 0}
