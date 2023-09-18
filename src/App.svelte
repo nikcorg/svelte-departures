@@ -6,7 +6,7 @@
   import TimeSince from "./TimeSince.svelte";
   import ToggleButton from "./ToggleButton.svelte";
 
-  import { departures, didUpdate, offset, stations, updatedAt, updating } from "./lib/updater";
+  import { departures, didUpdate, names, offset, stations, updatedAt, updating } from "./lib/updater";
   import { display, toggle, reset, setnx } from "./lib/settings";
 
   onMount(reset);
@@ -27,7 +27,7 @@
   <div class="toolkit">
     {#each fs as [station, include]}
       <ToggleButton click={() => toggle(station)} active={include}
-        >{station} ({$stations.get(station) ?? "-"})</ToggleButton
+        >{$names.get(station)} ({$stations.get(station) ?? "-"})</ToggleButton
       >
     {/each}
   </div>

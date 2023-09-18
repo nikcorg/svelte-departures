@@ -101,6 +101,14 @@ const stations = derived(
   ),
 );
 
+const names = derived(
+  update,
+  withDefault(
+    new Map<string, string>(),
+    ({ names }) => new Map<string, string>(Object.entries(names)),
+  ),
+);
+
 const departures = derived(
   update,
   withDefault([], ({ departures }) => departures),
@@ -114,4 +122,4 @@ const updatedAt = derived(
 const didUpdate = derived(update, ({ lastUpdate }) => lastUpdate != null);
 const updating = derived(update, ({ updating }) => updating);
 
-export { departures, didUpdate, offset, stations, updatedAt, updating };
+export { departures, didUpdate, names, offset, stations, updatedAt, updating };
