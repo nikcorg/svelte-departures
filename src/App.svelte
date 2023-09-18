@@ -30,15 +30,21 @@
   $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 8);
 
   // derive filters
-  $: fs = [...$display.entries()].sort(([sa], [sb]) => ($names.get(sa)! < $names.get(sb)! ? 0 : 1));
+  $: fs = $names.map(
+    ([code, name]) =>
+      [code, name, $display.get(code)!, `${$stations.get(code) ?? "-"}`] as [
+        string,
+        string,
+        boolean,
+        string,
+      ],
+  );
 </script>
 
 <div class="container">
   <div class="toolkit">
-    {#each fs as [station, include]}
-      <ToggleButton click={() => toggle(station)} active={include}
-        >{$names.get(station)} ({$stations.get(station) ?? "-"})</ToggleButton
-      >
+    {#each fs as [code, name, active, departures]}
+      <ToggleButton click={() => toggle(code)} {active}>{name} ({departures})</ToggleButton>
     {/each}
   </div>
   <div class="settings">

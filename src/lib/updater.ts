@@ -110,10 +110,7 @@ const stations = derived(
 
 const names = derived(
   update,
-  withDefault(
-    new Map<string, string>(),
-    ({ names }) => new Map<string, string>(Object.entries(names)),
-  ),
+  withDefault([] as Array<[string, string]>, ({ names }) => names),
 );
 
 const departures = derived(

@@ -9,7 +9,8 @@ export interface Departure {
 export type Station = [boolean, number];
 
 export interface Update {
-  names: { [k: string]: string };
+  // sorted list of station [key, name] tuples
+  names: Array<[string, string]>;
   departures: Departure[];
   // time offset used in departures query in minutes
   offset: number;
