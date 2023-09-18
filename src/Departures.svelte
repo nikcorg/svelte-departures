@@ -5,6 +5,8 @@
 
   const styleDepartureLine = (d: Departure): string =>
     d.etd.toLowerCase() !== "on time" ? "disrupted" : "";
+
+  const butcher = (s: string): string => s.replaceAll("ä", "a").replaceAll("ö", "o");
 </script>
 
 <table>
@@ -22,7 +24,7 @@
       <tr class={styleDepartureLine(d)}>
         <td>{d.due}</td>
         <td>{d.srv}</td>
-        <td>{d.dst}</td>
+        <td>{butcher(d.dst)}</td>
         <!-- <td class="plat">{d.pla}</td> -->
         <td class="etd">{d.etd}</td>
       </tr>
