@@ -30,7 +30,7 @@
   $: ds = $departures.filter(d => $display.get(d.sta) ?? true).slice(0, 8);
 
   // derive filters
-  $: fs = [...$display.entries()].sort(([sa], [sb]) => (sa > sb ? 1 : 0));
+  $: fs = [...$display.entries()].sort(([sa], [sb]) => ($names.get(sa)! < $names.get(sb)! ? 0 : 1));
 </script>
 
 <div class="container">
