@@ -1,9 +1,12 @@
+type Mode = "B" | "T" | "M";
+
 export interface Departure {
   dst: string;
   due: string;
   etd: string;
   srv: string;
   sta: string;
+  mod: Mode;
 }
 
 export type Station = [boolean, number];
